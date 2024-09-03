@@ -4,25 +4,27 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Gavel, Mail, Lock, User, Github } from "lucide-react";
+import { Gavel } from "lucide-react";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { signUpSchema } from "@/schemas/schema";
+import { signUpSchema, signInSchema } from "@/schemas/schema"; 
+import axios from "axios"
+import { toast } from "sonner"
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { z } from "zod";
+
 export default function AuthPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const form = useForm<z.infer<typeof signUpSchema>>({
+  const signUpForm = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
       username: "",
@@ -31,24 +33,38 @@ export default function AuthPage() {
     },
   });
 
-  async function onSubmitSignup(event: React.SyntheticEvent) {
-    event.preventDefault();
+  const signInForm = useForm<z.infer<typeof signInSchema>>({
+    resolver: zodResolver(signInSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  async function onSubmitSignup(data: z.infer<typeof signUpSchema>) {
     setIsLoading(true);
+    
+    console.log(data);
+    try {
+      const res = await axios.post('/api/auth/signup', data);
+      alert(res.data.message);
+    } catch (error : any) {
+      alert(error.response.data.message)
+    }
+     
 
     setTimeout(() => {
       setIsLoading(false);
     }, 3000);
   }
 
-  async function onSubmitSignin(event: React.SyntheticEvent) {
-    event.preventDefault();
+  async function onSubmitSignin(data: z.infer<typeof signInSchema>) {
     setIsLoading(true);
-
+    // Add your sign-in logic here
     setTimeout(() => {
       setIsLoading(false);
     }, 3000);
   }
-
 
   return (
     <div className="flex min-h-screen bg-gray-900 text-gray-100">
@@ -75,13 +91,13 @@ export default function AuthPage() {
             </TabsTrigger>
           </TabsList>
           <TabsContent value="signin">
-            <Form {...form}>
+            <Form {...signInForm}>
               <form
-                onSubmit={form.handleSubmit(onSubmitSignin)}
+                onSubmit={signInForm.handleSubmit(onSubmitSignin)}
                 className="space-y-8"
               >
                 <FormField
-                  control={form.control}
+                  control={signInForm.control}
                   name="email"
                   render={({ field }) => (
                     <FormItem>
@@ -89,13 +105,12 @@ export default function AuthPage() {
                       <FormControl>
                         <Input placeholder="m@gmail.com" {...field} />
                       </FormControl>
-
                       <FormMessage />
                     </FormItem>
                   )}
                 />
                 <FormField
-                  control={form.control}
+                  control={signInForm.control}
                   name="password"
                   render={({ field }) => (
                     <FormItem>
@@ -107,21 +122,19 @@ export default function AuthPage() {
                           {...field}
                         />
                       </FormControl>
-
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
                 <Button
                   className="bg-purple-600 hover:bg-purple-500 px-4 py-2"
                   type="submit"
+                  disabled={isLoading}
                 >
-                  Submit
+                  {isLoading ? "Signing in..." : "Submit"}
                 </Button>
               </form>
             </Form>
-
             <p className="mt-4 text-center text-sm text-gray-500">
               <Link
                 className="hover:text-purple-400 underline underline-offset-4 transition duration-300"
@@ -132,13 +145,13 @@ export default function AuthPage() {
             </p>
           </TabsContent>
           <TabsContent value="signup">
-            <Form {...form}>
+            <Form {...signUpForm}>
               <form
-                onSubmit={form.handleSubmit(onSubmitSignup)}
+                onSubmit={signUpForm.handleSubmit(onSubmitSignup)}
                 className="space-y-8"
               >
                 <FormField
-                  control={form.control}
+                  control={signUpForm.control}
                   name="username"
                   render={({ field }) => (
                     <FormItem>
@@ -146,13 +159,12 @@ export default function AuthPage() {
                       <FormControl>
                         <Input placeholder="jon432" {...field} />
                       </FormControl>
-
                       <FormMessage />
                     </FormItem>
                   )}
                 />
                 <FormField
-                  control={form.control}
+                  control={signUpForm.control}
                   name="email"
                   render={({ field }) => (
                     <FormItem>
@@ -160,13 +172,12 @@ export default function AuthPage() {
                       <FormControl>
                         <Input placeholder="m@gmail.com" {...field} />
                       </FormControl>
-
                       <FormMessage />
                     </FormItem>
                   )}
                 />
                 <FormField
-                  control={form.control}
+                  control={signUpForm.control}
                   name="password"
                   render={({ field }) => (
                     <FormItem>
@@ -178,17 +189,16 @@ export default function AuthPage() {
                           {...field}
                         />
                       </FormControl>
-
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
                 <Button
                   className="bg-purple-600 hover:bg-purple-500 px-4 py-2"
                   type="submit"
+                  disabled={isLoading}
                 >
-                  Submit
+                  {isLoading ? "Signing up..." : "Submit"}
                 </Button>
               </form>
             </Form>
