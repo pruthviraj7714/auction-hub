@@ -29,7 +29,7 @@ export default function LandingPage() {
       <main className="flex-1">
         <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
           <div className="container px-4 md:px-6 mx-auto">
-            <div className="flex flex-col items-center space-y-4 text-center">
+            <div className="flex flex-col items-center text-center">
               <div className="space-y-2">
                 <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600">
                   Bid, Win, Celebrate with AuctionHub
@@ -38,14 +38,13 @@ export default function LandingPage() {
                   Experience the thrill of real-time auctions. Discover unique items, place your bids, and win amazing deals from anywhere in the world.
                 </p>
               </div>
-              <div className="w-full max-w-sm space-y-2">
-                <form className="flex space-x-2">
-                  <Input className="max-w-lg flex-1 bg-gray-800 border-gray-700 text-white placeholder-gray-500" placeholder="Enter your email" type="email" />
-                  <Button type="submit" className="bg-purple-600 hover:bg-purple-700 text-white">Sign Up</Button>
-                </form>
-                <p className="text-xs text-gray-500">
-                  Sign up to get notified about upcoming auctions. No spam, ever.
-                </p>
+              <div className="w-full max-w-sm mt-10">
+                <Link href={'/auth'}>
+                  <Button className="bg-purple-600 w-[230px] hover:bg-purple-700" >
+                    Get Started
+                  </Button>
+                
+                </Link>
               </div>
             </div>
           </div>
@@ -88,7 +87,7 @@ export default function LandingPage() {
                     alt={`Popular Auction ${i}`}
                     className="object-cover w-full h-60"
                     height="300"
-                    src={`/placeholder.svg?height=300&width=400`}
+                    src={`#`}
                     style={{
                       aspectRatio: "400/300",
                       objectFit: "cover",

@@ -1,16 +1,15 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Gavel } from "lucide-react";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { signUpSchema, signInSchema } from "@/schemas/schema"; 
-import axios from "axios"
-import { toast } from "sonner"
+import { signUpSchema, signInSchema } from "@/schemas/schema";
+import axios from "axios";
+import { toast } from "sonner";
 import {
   Form,
   FormControl,
@@ -20,9 +19,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { z } from "zod";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function AuthPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { data: session, status } = useSession();
+  const [activeTab, setActiveTab] = useState("signup");
+  const router = useRouter();
 
   const signUpForm = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
@@ -43,28 +47,44 @@ export default function AuthPage() {
 
   async function onSubmitSignup(data: z.infer<typeof signUpSchema>) {
     setIsLoading(true);
-    
-    console.log(data);
     try {
-      const res = await axios.post('/api/auth/signup', data);
-      alert(res.data.message);
-    } catch (error : any) {
-      alert(error.response.data.message)
-    }
-     
-
-    setTimeout(() => {
+      const res = await axios.post("/api/auth/signup", data);
+      toast.success(res.data.message, {
+        description: "Now Sign in with your credentials",
+      });
+      setActiveTab("signin");
+    } catch (error: any) {
+      toast.error(error?.response?.data.message);
+    } finally {
       setIsLoading(false);
-    }, 3000);
+    }
   }
 
   async function onSubmitSignin(data: z.infer<typeof signInSchema>) {
     setIsLoading(true);
-    // Add your sign-in logic here
-    setTimeout(() => {
+    try {
+      const res = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      });
+      if (res?.ok) {
+        router.push("/home");
+      } else {
+        toast.error(res?.error ?? "Error while sign in!");
+      }
+    } catch (error: any) {
+      toast.error(error?.response?.data.message ?? error?.message);
+    } finally {
       setIsLoading(false);
-    }, 3000);
+    }
   }
+
+  useEffect(() => {
+    if (session && session?.user) {
+      router.push("/home");
+    }
+  }, [session, router]);
 
   return (
     <div className="flex min-h-screen bg-gray-900 text-gray-100">
@@ -75,7 +95,7 @@ export default function AuthPage() {
             AuctionHub
           </span>
         </div>
-        <Tabs defaultValue="signup" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-8 bg-gradient-to-r from-purple-600 to-purple-800 text-white rounded-lg shadow-lg">
             <TabsTrigger
               value="signin"
