@@ -12,7 +12,7 @@ export default function Appbar() {
 
   return (
     <div className="px-4 lg:px-6 h-16 flex items-center">
-      <Link className="flex items-center justify-center" href="/">
+      <Link className="flex items-center justify-center" href="/home">
         <Gavel className="h-6 w-6 text-purple-500" />
         <span className="ml-2 text-2xl font-bold text-purple-500">
           AuctionHub
@@ -31,8 +31,13 @@ export default function Appbar() {
         >
           Categories
         </Link>
-        {session && session?.user ? (
-          <div>
+        {session && session?.user && (
+          <div className="flex items-center">
+            <Button onClick={() => {
+              router.push('/create-auction')
+            }} className="">
+              Maka a auction
+            </Button>
             <Button
               onClick={async () => {
                 await signOut({ redirect: false });
@@ -41,15 +46,6 @@ export default function Appbar() {
               variant="destructive"
             >
               Sign out
-            </Button>
-          </div>
-        ) : (
-          <div className="ml-4 flex items-center gap-2">
-            <Button variant="ghost" className="text-gray-300 hover:text-white">
-              Sign In
-            </Button>
-            <Button className="bg-purple-600 hover:bg-purple-700">
-              Sign Up
             </Button>
           </div>
         )}

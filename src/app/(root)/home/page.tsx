@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Gavel, Search, Clock, Tag, Zap, ChevronRight } from "lucide-react";
+import { Search, Clock, Tag, ChevronRight } from "lucide-react";
 import Appbar from "@/components/appbar";
 
 export default function HomePage() {
@@ -109,7 +109,7 @@ export default function HomePage() {
                 (category) => (
                   <Link
                     key={category}
-                    href={`/category/${category.toLowerCase()}`}
+                    href={`/auction/${category.toLowerCase()}`}
                     className="group block p-6 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors"
                   >
                     <Tag className="h-10 w-10 mb-2 text-purple-500 group-hover:text-purple-400" />
@@ -123,43 +123,7 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-        <section className="w-full py-12 md:py-24 lg:py-32 bg-purple-900">
-          <div className="container px-4 md:px-6 mx-auto">
-            <div className="flex flex-col items-center space-y-4 text-center">
-              <Zap className="h-12 w-12 text-purple-400" />
-              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-                Ready to Start Bidding?
-              </h2>
-              <p className="mx-auto max-w-[600px] text-gray-300 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                Join thousands of collectors and enthusiasts. Sign up now and
-                get your first bid free!
-              </p>
-              <Button className="bg-white text-purple-900 hover:bg-gray-100">
-                Create Your Account
-              </Button>
-            </div>
-          </div>
-        </section>
       </main>
-      <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t border-gray-800">
-        <p className="text-xs text-gray-500">
-          © 2023 AuctionHub. All rights reserved.
-        </p>
-        <nav className="sm:ml-auto flex gap-4 sm:gap-6">
-          <Link
-            className="text-xs hover:underline underline-offset-4 text-gray-500"
-            href="#"
-          >
-            Terms of Service
-          </Link>
-          <Link
-            className="text-xs hover:underline underline-offset-4 text-gray-500"
-            href="#"
-          >
-            Privacy
-          </Link>
-        </nav>
-      </footer>
     </div>
   );
 }
