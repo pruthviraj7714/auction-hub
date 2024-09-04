@@ -14,17 +14,59 @@ datasource db {
 }
 
 model User {
-  id    String    @id @default(uuid())
-  username  String    @unique
-  email     String    @unique
-  password  String  
-  auctions    Auction[]
+  id           String        @id @default(uuid())
+  username     String        @unique
+  email        String        @unique
+  password     String
+  bidCoins     Int           @default(0)
+  bids         Bid[]
+  auctions     Auction[]
+  transcations Transcation[]
+}
+
+model Bid {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  auctionId String
+  auction   Auction  @relation(fields: [auctionId], references: [id])
+  timeStamp DateTime @default(now())
 }
 
 model Auction {
-  id    String @id @default(uuid())
-  title String
-  description   String
-  userId      String
-  user    User  @relation(fields: [userId],references: [id]) 
+  id                String       @id @default(uuid())
+  title             String
+  description       String
+  startingPrice     Int
+  currentHighestBid Int          @default(0)
+  category          String
+  startingTime      DateTime
+  endingTime        DateTime
+  bids              Bid[]
+  transcation       Transcation?
+  productId         String
+  product           Product      @relation(fields: [productId], references: [id])
+  userId            String
+  user              User         @relation(fields: [userId], references: [id])
+
+  @@unique([productId])
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  imageUrl    String
+  auction     Auction?
+}
+
+model Transcation {
+  id        String  @id @default(uuid())
+  amount    Int
+  auctionId String
+  auction   Auction @relation(fields: [auctionId], references: [id])
+  userId    String
+  user      User    @relation(fields: [userId], references: [id])
+
+  @@unique([auctionId])
 }
