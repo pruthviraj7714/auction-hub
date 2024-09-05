@@ -42,6 +42,7 @@ model Auction {
   category          String
   startingTime      DateTime
   endingTime        DateTime
+  isActive          Boolean      @default(false)
   bids              Bid[]
   transcation       Transcation?
   productId         String
