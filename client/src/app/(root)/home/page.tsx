@@ -1,13 +1,33 @@
+"use client";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Clock, Tag, ChevronRight } from "lucide-react";
-import Appbar from "@/components/appbar";
+import { Search, Tag, ChevronRight } from "lucide-react";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import AuctionCard from "@/components/AuctionCard";
 
 export default function HomePage() {
+  const [auctions, setAuctions] = useState<any[]>([]);
+  const getAuctions = async () => {
+    try {
+      const res = await axios.get("/api/auction/all");
+      console.log(res.data);
+
+      setAuctions(res.data.auctions);
+    } catch (error: any) {
+      
+      toast.error(error.response.data.message);
+    }
+  };
+
+  useEffect(() => {
+    getAuctions();
+  }, []);
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 text-gray-100">
-      <Appbar />
       <main className="flex-1">
         <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-gradient-to-b from-gray-900 to-gray-800">
           <div className="container px-4 md:px-6 mx-auto">
@@ -49,44 +69,13 @@ export default function HomePage() {
               Featured Auctions
             </h2>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="group relative overflow-hidden rounded-lg bg-gray-900 shadow-lg"
-                >
-                  <img
-                    alt={`Featured Auction ${i}`}
-                    className="object-cover w-full h-64"
-                    height="400"
-                    src={`/placeholder.svg?height=400&width=600`}
-                    style={{
-                      aspectRatio: "3/2",
-                      objectFit: "cover",
-                    }}
-                    width="600"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <h3 className="text-lg font-bold text-white mb-2">
-                      Exclusive Item {i}
-                    </h3>
-                    <div className="flex justify-between items-center">
-                      <p className="text-sm text-gray-300 flex items-center">
-                        <Clock className="h-4 w-4 mr-1" />
-                        Ends in 2d 5h
-                      </p>
-                      <p className="text-sm font-bold text-purple-400">
-                        Current Bid: $1,234
-                      </p>
-                    </div>
-                  </div>
-                  <div className="absolute inset-0 bg-purple-600/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <Button className="bg-purple-600 hover:bg-purple-700">
-                      Bid Now
-                    </Button>
-                  </div>
-                </div>
-              ))}
+              {auctions && auctions.length > 0 ? (
+                auctions.map((auction, index) => (
+                  <AuctionCard key={index} auction={auction} />
+                ))
+              ) : (
+                <div>NO auctions found</div>
+              )}
             </div>
             <div className="mt-8 text-center">
               <Button

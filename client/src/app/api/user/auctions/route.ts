@@ -21,7 +21,11 @@ export async function GET() {
         id: session.user.id,
       },
       include: {
-        auctions: true,
+        auctions: {
+          include: {
+            product: true,
+          },
+        },
       },
     });
 
