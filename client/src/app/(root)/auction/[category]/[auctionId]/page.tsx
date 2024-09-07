@@ -2,22 +2,32 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Clock,
   DollarSign,
   User,
   Truck,
   Shield,
   ArrowLeft,
-  Heart,
+  Clock10,
+  Calendar,
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSession } from "next-auth/react";
 import axios from "axios";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import AuctionTimer from "@/components/AuctionTimer";
+import { checkUserBalance } from "@/lib/helper";
+import { useRouter } from "next/navigation";
 
 type Bid = {
   id: number;
@@ -34,21 +44,27 @@ export default function AuctionItemPage({
     auctionId: string;
   };
 }) {
-  const [currentBid, setCurrentBid] = useState(1500);
+  const [currentBid, setCurrentBid] = useState(0);
   const [userBid, setUserBid] = useState("");
   const [bids, setBids] = useState<Bid[]>([]);
   const [bidders, setBidders] = useState(0);
   const [socket, setSocket] = useState<WebSocket | null>(null);
-  const session = useSession();
+  const { data: session, status } = useSession();
   const [auctionInfo, setAuctionInfo] = useState<any>({});
+  const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const router = useRouter();
+  const now = new Date();
+  const isActive =
+    now >= new Date(auctionInfo.startingTime) &&
+    now <= new Date(auctionInfo.endingTime);
 
   const getAuctionInfo = async () => {
     try {
       const res = await axios.get(`/api/auction?auctionId=${params.auctionId}`);
       setAuctionInfo(res.data.auction);
-    } catch (error : any) {
-      toast.error(error?.response?.data.message)
+    } catch (error: any) {
+      toast.error(error?.response?.data.message);
     } finally {
       setIsLoading(false);
     }
@@ -56,15 +72,19 @@ export default function AuctionItemPage({
 
   useEffect(() => {
     getAuctionInfo();
-  }, []);
+  }, [params.auctionId]);
+
+  useEffect(() => {
+    if (auctionInfo.endingTime && now == new Date(auctionInfo.endingTime)) {
+      setIsOpen(true);
+    }
+  }, [auctionInfo, now]);
 
   useEffect(() => {
     const ws = new WebSocket(`ws://localhost:8080/auction/${params.auctionId}`);
     setSocket(ws);
 
-    ws.onopen = () => {
-      console.log("Connected to WebSocket");
-    };
+    ws.onopen = () => console.log("Connected to WebSocket");
 
     ws.onmessage = (event: MessageEvent) => {
       const data = JSON.parse(event.data);
@@ -80,39 +100,66 @@ export default function AuctionItemPage({
       }
     };
 
-    ws.onclose = () => {
-      console.log("WebSocket connection closed");
-    };
+    ws.onerror = (error) => console.error("WebSocket Error:", error);
+
+    ws.onclose = () => console.log("WebSocket connection closed");
 
     return () => {
       if (ws) ws.close();
     };
   }, [params.auctionId]);
 
-  const handleBid = (e: React.FormEvent) => {
+  const handleBid = async (e: React.FormEvent) => {
     e.preventDefault();
     const bidAmount = parseFloat(userBid);
+    const userBalance =
+      (await checkUserBalance(session?.user.id as string)) ?? 0;
+
+    if (bidAmount > userBalance) {
+      toast.error("You don't have enough bidCoins to bid!");
+      return;
+    }
+
     if (bidAmount <= currentBid) {
       toast.info("You Should Bid more amount than Current Bid");
       return;
     }
+
     if (socket) {
-      const newBid = { bidder: session?.data?.user.username, bidAmount };
+      const newBid = {
+        bidder: session?.user.username,
+        bidAmount,
+        auctionId: params.auctionId,
+        timestamp: new Date().toISOString(),
+      };
+
       socket.send(JSON.stringify(newBid));
-      setUserBid("");
+
+      try {
+        await axios.post("/api/publishBid", {
+          newBid,
+          bidderId: session?.user.id,
+        });
+        setUserBid("");
+      } catch (error) {
+        toast.error("Error submitting bid");
+      }
     }
   };
 
-  if (isLoading) {
+  if (isLoading || status === "loading") {
     return <div>Loading...</div>;
   }
+
+  const winningBid = bids.length > 0 ? bids[0].amount : 0;
+  const winner = bids.length > 0 ? bids[0].bidder : "No Winner";
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 text-gray-100">
       <main className="flex-1 py-12 px-4 md:px-6">
         <div className="max-w-6xl mx-auto">
           <Link
-            href="/"
+            href="/home"
             className="inline-flex items-center text-purple-400 hover:text-purple-300 mb-6"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -123,28 +170,57 @@ export default function AuctionItemPage({
               <div className="aspect-square relative overflow-hidden rounded-lg bg-gray-800">
                 <img
                   src={auctionInfo?.product?.imageUrl}
-                  alt={auctionInfo.title}
+                  alt={auctionInfo.product?.title}
                   className="object-cover w-full h-full"
                 />
               </div>
-              <AuctionTimer endingTime={auctionInfo.endingTime} />
+              <AuctionTimer
+                startingTime={auctionInfo.startingTime}
+                endingTime={auctionInfo.endingTime}
+              />
+              <div className="p-4 mt-5 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg shadow-md text-white">
+                <div className="flex items-center space-x-4">
+                  <Calendar className="text-2xl" />
+                  <div className="text-lg font-semibold">Auction Time</div>
+                </div>
+                <div className="mt-2 text-lg">
+                  <span className="flex items-center space-x-2">
+                    <Clock10 />
+                    <span>
+                      <span className="font-semibold">Starts:</span>{" "}
+                      {new Date(auctionInfo.startingTime).toLocaleString()}
+                    </span>
+                  </span>
+                  <span className="flex items-center space-x-2 mt-1">
+                    <Clock10 />
+                    <span>
+                      <span className="font-semibold">Ends:</span>{" "}
+                      {new Date(auctionInfo.endingTime).toLocaleString()}
+                    </span>
+                  </span>
+                </div>
+              </div>
             </div>
             <div className="space-y-6">
               <h1 className="text-3xl font-bold">
-                {auctionInfo.product.title}
+                {auctionInfo.product?.title}
               </h1>
               <div className="flex items-center space-x-4 text-2xl font-bold">
                 <DollarSign className="h-6 w-6 text-green-500" />
-                <span>Current Bid: ${currentBid.toLocaleString()}</span>
+                <span>Current Bid: ${currentBid?.toLocaleString()}</span>
               </div>
               <form onSubmit={handleBid}>
                 <Input
                   type="number"
                   value={userBid}
                   onChange={(e) => setUserBid(e.target.value)}
-                  placeholder={`Enter bid above ${currentBid}`}
+                  placeholder={
+                    isActive ? `Enter bid above ${currentBid}` : "Auction Ended"
+                  }
+                  disabled={!isActive}
                 />
                 <Button
+                  disabled={!isActive}
                   className="bg-purple-500 hover:bg-purple-600 px-4 py-1 mt-2"
                   type="submit"
                 >
@@ -191,73 +267,61 @@ export default function AuctionItemPage({
                   ))}
                 </div>
               </div>
+              {isOpen && (
+                <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
+                  <AlertDialogContent className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg animate-slide-in-up">
+                    <AlertDialogHeader className="flex flex-col items-center space-y-4">
+                      <Avatar className="h-16 w-16 border-2 border-purple-400 p-1 rounded-full animate-spin-slow">
+                        <AvatarImage
+                          src={session?.user?.image || "/default-avatar.png"}
+                          alt="User Avatar"
+                        />
+                        <AvatarFallback className="bg-purple-600 text-white font-bold">
+                          {bids[0]?.bidder?.[0].toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+
+                      <AlertDialogTitle className="flex items-center space-x-2 text-lg font-bold text-black dark:text-white">
+                        <span>Auction Ended</span>
+                        <Clock10 className="h-5 w-5 text-purple-500 animate-pulse" />
+                      </AlertDialogTitle>
+                    </AlertDialogHeader>
+
+                    <AlertDialogDescription className="text-black dark:text-gray-300 mt-4 text-center">
+                      <div className="flex flex-col items-center">
+                        <div className="mb-3">
+                          <Shield className="h-8 w-8 text-yellow-500 animate-bounce" />
+                        </div>
+                        <p className="text-lg">
+                          Congratulations, <strong>{winner}</strong>! won the
+                          auction for{" "}
+                          <strong>{auctionInfo.product?.title}</strong> with a
+                          final bid of
+                          <span className="text-green-500 font-semibold">
+                            {" "}
+                            ${winningBid}
+                          </span>
+                          .
+                        </p>
+                      </div>
+                    </AlertDialogDescription>
+
+                    <AlertDialogFooter className="mt-6">
+                      <AlertDialogAction
+                        className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-4 py-2 rounded-lg hover:scale-105 transition-transform duration-300"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        <span className="flex items-center space-x-2">
+                          <Truck className="h-5 w-5" />
+                          <span>Close</span>
+                        </span>
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
             </div>
           </div>
-          <Tabs defaultValue="description" className="mt-12">
-            <TabsList className="w-full justify-start border-b border-gray-800">
-              <TabsTrigger value="description">Description</TabsTrigger>
-              <TabsTrigger value="details">Details</TabsTrigger>
-              <TabsTrigger value="shipping">Shipping</TabsTrigger>
-            </TabsList>
-            <TabsContent value="description" className="mt-4 text-gray-300">
-              <p>
-                This vintage Leica M3 camera is a true collector's item.
-                Manufactured in 1954, it represents the pinnacle of rangefinder
-                camera design. The camera is in excellent condition, with
-                minimal signs of use and all original parts intact. It comes
-                with its original leather case and strap.
-              </p>
-              <p className="mt-4">
-                The Leica M3 is renowned for its bright viewfinder, precise
-                focusing, and quiet operation. This particular model features a
-                double-stroke film advance lever and is compatible with a wide
-                range of Leica M-mount lenses.
-              </p>
-            </TabsContent>
-            <TabsContent value="details" className="mt-4">
-              <ul className="list-disc list-inside space-y-2 text-gray-300">
-                <li>Manufactured in 1954</li>
-                <li>Serial number: 700xxx</li>
-                <li>35mm film format</li>
-                <li>Rangefinder focusing</li>
-                <li>Shutter speeds: 1 sec to 1/1000 sec</li>
-                <li>Includes original leather case and strap</li>
-                <li>Fully functional, recently serviced</li>
-              </ul>
-            </TabsContent>
-            <TabsContent value="shipping" className="mt-4 text-gray-300">
-              <p>
-                This item will be carefully packaged and shipped via insured
-                courier service. Shipping is free within the continental United
-                States. International shipping is available at an additional
-                cost, calculated at checkout. Please allow 3-5 business days for
-                processing and handling before shipment.
-              </p>
-            </TabsContent>
-          </Tabs>
-          <section className="mt-12">
-            <h2 className="text-2xl font-bold mb-6">Related Auctions</h2>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="bg-gray-800 rounded-lg overflow-hidden">
-                  <img
-                    src={`/placeholder.svg?height=200&width=300&text=Related${i}`}
-                    alt={`Related Item ${i}`}
-                    className="w-full h-48 object-cover"
-                  />
-                  <div className="p-4">
-                    <h3 className="font-semibold mb-2">Vintage Camera {i}</h3>
-                    <p className="text-sm text-gray-400 mb-2">
-                      Current Bid: $XXX
-                    </p>
-                    <Button variant="outline" className="w-full">
-                      View Auction
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
         </div>
       </main>
     </div>
