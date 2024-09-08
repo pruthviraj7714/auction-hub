@@ -22,6 +22,20 @@ export async function GET() {
       },
       include: {
         auctions: true,
+        bids: {
+          include: {
+            auction: {
+              select: {
+                title: true,
+                isActive: true,
+              },
+            },
+          },
+          orderBy: {
+            timeStamp: "desc",
+          },
+        },
+        transcations: true,
       },
     });
 

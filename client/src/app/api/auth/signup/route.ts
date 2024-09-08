@@ -1,5 +1,4 @@
 import { signUpSchema } from "@/schemas/schema";
-import { error } from "console";
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import prisma from "@/lib/db";
