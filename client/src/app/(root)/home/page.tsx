@@ -13,7 +13,6 @@ export default function HomePage() {
   const getAuctions = async () => {
     try {
       const res = await axios.get("/api/auction/all");
-      console.log(res.data);
 
       setAuctions(res.data.auctions);
     } catch (error: any) {
@@ -62,7 +61,7 @@ export default function HomePage() {
         </section>
         <section
           id="featured"
-          className="w-full py-12 md:py-24 lg:py-32 bg-gray-800"
+          className="w-full py-12 md:py-20 lg:py-28 bg-gray-800"
         >
           <div className="container px-4 md:px-6 mx-auto">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl mb-8">
@@ -74,18 +73,18 @@ export default function HomePage() {
                   <AuctionCard key={index} auction={auction} />
                 ))
               ) : (
-                <div>NO auctions found</div>
+                <div>No auctions found</div>
               )}
             </div>
-            <div className="mt-8 text-center">
+            <Link href={'/auctions'} className="mt-10 flex justify-center items-center text-center">
               <Button
                 variant="outline"
-                className="border-purple-500 text-purple-400 hover:bg-purple-500 hover:text-white"
+                className="border-purple-500 bg-purple-600 text-white hover:bg-purple-500 hover:text-white"
               >
                 View All Auctions
                 <ChevronRight className="ml-2 h-4 w-4" />
               </Button>
-            </div>
+            </Link>
           </div>
         </section>
         <section id="categories" className="w-full py-12 md:py-24 lg:py-32">

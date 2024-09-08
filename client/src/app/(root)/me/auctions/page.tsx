@@ -1,25 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Search, DollarSign, Clock, ArrowUpRight } from "lucide-react";
+import { DollarSign, Clock} from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
 import AuctionCard2 from "@/components/AuctionCard2";
 
 export default function YourAuctionsPage() {
-  const [searchTerm, setSearchTerm] = useState("");
   const [currentAuctions, setCurrentAuctions] = useState<any[]>([]);
   const [pastAuctions, setPastAuctions] = useState<any[]>([]);
 
   const getAuctions = async () => {
     try {
       const res = await axios.get("/api/user/auctions");
-      console.log(res.data);
-      
       setCurrentAuctions(
         res.data.user.auctions?.filter((a: any) => a.isActive === true)
       );
@@ -90,7 +85,7 @@ export default function YourAuctionsPage() {
 
             <TabsContent value="current">
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {currentAuctions.length > 0 ? (
+                {currentAuctions && currentAuctions.length > 0 ? (
                   currentAuctions.map((auction) => (
                     <AuctionCard2 auction={auction} key={auction.id} />
                   ))
@@ -102,7 +97,7 @@ export default function YourAuctionsPage() {
 
             <TabsContent value="past">
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {pastAuctions.length > 0 ? (
+                {pastAuctions && pastAuctions.length > 0 ? (
                   pastAuctions.map((auction) => (
                     <AuctionCard2 auction={auction} key={auction.id} />
                   ))

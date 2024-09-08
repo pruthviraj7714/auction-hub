@@ -4,7 +4,10 @@ import { Card, CardContent } from "./ui/card";
 import Link from "next/link";
 
 export default function AuctionCard2({ auction }: { auction: any }) {
-  // Function to format time left
+
+  const now = Date.now();
+  const isActive = (now >= new Date(auction.startingTime).getTime()) && (now <= new Date(auction.endingTime).getTime())
+
   const formatTimeLeft = (endTime: string) => {
     const timeLeft = new Date(endTime).getTime() - Date.now();
     if (timeLeft <= 0) return "Ended";
@@ -43,7 +46,7 @@ export default function AuctionCard2({ auction }: { auction: any }) {
               </span>
             </p>
             <div className="flex justify-between items-center">
-              {auction.isActive && (
+              {isActive && (
                 <Button
                   className="flex justify-center items-center"
                   variant={"destructive"}
