@@ -1,12 +1,25 @@
 import WebSocket from "ws";
 import axios from "axios";
+
 const wss = new WebSocket.Server({ port: 8080 });
 
-const auctionData: {
-  [auctionId: string]: { currentBid: number; bids: any[] };
-} = {};
+interface Bid {
+  auctionId: string;
+  bidder: string;
+  amount: number;
+  timestamp: Date;
+}
 
-const getAuctionData = async (auctionId: string) => {
+interface Auction {
+  currentBid: number;
+  bids: Bid[];
+  startingTime: string;
+  endingTime: string; 
+}
+
+const auctionData: { [auctionId: string]: Auction } = {};
+
+const getAuctionData = async (auctionId: string): Promise<Auction> => {
   try {
     const res = await axios.get(
       `http://localhost:3000/api/auction?auctionId=${auctionId}`
@@ -16,6 +29,8 @@ const getAuctionData = async (auctionId: string) => {
       auctionData[auctionId] = {
         currentBid: res.data.auction.startingPrice || 0,
         bids: [],
+        startingTime: res.data.auction.startingTime,
+        endingTime: res.data.auction.endingTime,
       };
     }
     return auctionData[auctionId];
@@ -41,6 +56,28 @@ wss.on("connection", async (ws, req) => {
 
   try {
     const auction = await getAuctionData(auctionId);
+    const startingTime = new Date(auction.startingTime).getTime();
+    const endingTime = new Date(auction.endingTime).getTime();
+
+    const checkAuctionStatus = () => {
+      const now = Date.now();
+
+      if (now >= startingTime && now < endingTime) {
+        ws.send(JSON.stringify({ type: "auctionStart", isAuctionEnded: false }));
+      } else if (now >= endingTime && (now - endingTime) <= 1000) {
+        ws.send(
+          JSON.stringify({
+            type: "auctionJustEnded",
+            isAuctionJustEnded: true,
+          })
+        );
+      } else if (now >= endingTime) {
+        ws.send(JSON.stringify({ type: "auctionEnd", isAuctionEnded: true }));
+      }
+    };
+
+
+    checkAuctionStatus();
 
     ws.send(
       JSON.stringify({
@@ -50,14 +87,25 @@ wss.on("connection", async (ws, req) => {
       })
     );
 
-    ws.on("message", (message: any) => {
+
+    const intervalId = setInterval(() => {
+      checkAuctionStatus();
+    }, 1000);
+
+
+    ws.on("close", () => {
+      clearInterval(intervalId);
+    });
+
+    ws.on("message", (message: string) => {
       try {
-        const { bidder, bidAmount } = JSON.parse(message);
-        const newBid = {
-          id: Date.now(),
+        const { bidder, bidAmount, timestamp, auctionId } = JSON.parse(message);
+        console.log(JSON.parse(message));
+        const newBid: Bid = {
+          auctionId,
           bidder,
           amount: bidAmount,
-          timestamp: new Date(),
+          timestamp,
         };
 
         auction.bids.unshift(newBid);
