@@ -21,7 +21,7 @@ model User {
   bidCoins     Int           @default(0)
   bids         Bid[]
   auctions     Auction[]
-  transcations Transcation[]
+  transactions Transaction[]
 }
 
 model Bid {
@@ -35,21 +35,21 @@ model Bid {
 }
 
 model Auction {
-  id                String       @id @default(uuid())
+  id                String        @id @default(uuid())
   title             String
   description       String
   startingPrice     Int
-  currentHighestBid Int          @default(0)
+  currentHighestBid Int           @default(0)
   category          String
   startingTime      DateTime
   endingTime        DateTime
-  isActive          Boolean      @default(false)
+  isActive          Boolean       @default(false)
   bids              Bid[]
-  transcation       Transcation?
+  transactions      Transaction[]
   productId         String
-  product           Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product           Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
   userId            String
-  user              User         @relation(fields: [userId], references: [id])
+  user              User          @relation(fields: [userId], references: [id])
 
   @@unique([productId])
 }
@@ -62,14 +62,18 @@ model Product {
   auction     Auction?
 }
 
-model Transcation {
-  id        String  @id @default(uuid())
+model Transaction {
+  id        String   @id @default(uuid())
   amount    Int
   auctionId String
-  auction   Auction @relation(fields: [auctionId], references: [id])
+  auction   Auction  @relation(fields: [auctionId], references: [id])
   userId    String
-  user      User    @relation(fields: [userId], references: [id])
-  createdAt  DateTime   @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  status    Txstatus
+}
 
-  @@unique([auctionId])
+enum Txstatus {
+  inbid
+  outbid
 }
