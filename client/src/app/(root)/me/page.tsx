@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,28 +14,12 @@ import { Coins, User, Mail, ArrowUpRight, ArrowDownLeft } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
 
-const transactions = [
-  {
-    id: 1,
-    type: "Purchase",
-    amount: 100,
-    date: "2023-06-02",
-    item: "Bid Coins",
-  },
-  {
-    id: 2,
-    type: "Withdrawal",
-    amount: 50,
-    date: "2023-05-30",
-    item: "Auction Winnings",
-  },
-  { id: 3, type: "Deposit", amount: 200, date: "2023-05-20", item: "Refund" },
-];
 
 export default function UserProfilePage() {
   const [activeTab, setActiveTab] = useState("bids");
   const [userInfo, setUserInfo] = useState<any>({});
   const [bids, setBids] = useState<any[]>([]);
+  const [transactions, setTransactions] = useState<any[]>([]);
   const getUserInfo = async () => {
     try {
       const res = await axios.get("/api/user/info");
@@ -122,35 +105,38 @@ export default function UserProfilePage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {bids && bids.map((bid) => (
-                      <div
-                        key={bid.id}
-                        className="flex items-center justify-between p-4 bg-gray-800 rounded-lg"
-                      >
-                        <div>
-                          <h3 className="font-semibold text-purple-600">{bid.auction.title}</h3>
-                          <p className="text-sm text-gray-400">
-                            Bid Amount: ${bid.amount}
-                          </p>
+                    {bids &&
+                      bids.map((bid) => (
+                        <div
+                          key={bid.id}
+                          className="flex items-center justify-between p-4 bg-gray-800 rounded-lg"
+                        >
+                          <div>
+                            <h3 className="font-semibold text-purple-600">
+                              {bid.auction.title}
+                            </h3>
+                            <p className="text-sm text-gray-400">
+                              Bid Amount: ${bid.amount}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm text-purple-400">
+                              {new Date(bid.timeStamp).toLocaleString()}
+                            </p>
+                            <span
+                              className={`text-sm font-semibold ${
+                                bid.isActive === "Winning"
+                                  ? "text-green-500"
+                                  : bid.status === "Outbid"
+                                  ? "text-red-500"
+                                  : "text-yellow-500"
+                              }`}
+                            >
+                              {bid.isActive}
+                            </span>
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <p className="text-sm text-gray-400">
-                            {bid.timestamp}
-                          </p>
-                          <span
-                            className={`text-sm font-semibold ${
-                              bid.isActive === "Winning"
-                                ? "text-green-500"
-                                : bid.status === "Outbid"
-                                ? "text-red-500"
-                                : "text-yellow-500"
-                            }`}
-                          >
-                            {bid.isActive}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
+                      ))}
                   </div>
                 </CardContent>
               </Card>
@@ -167,43 +153,34 @@ export default function UserProfilePage() {
                   <div className="space-y-4">
                     {transactions.map((transaction) => (
                       <div
-                        key={transaction.id}
-                        className="flex items-center justify-between p-4 bg-gray-800 rounded-lg"
-                      >
-                        <div className="flex items-center">
-                          {transaction.type === "Purchase" ? (
-                            <Coins className="h-5 w-5 text-yellow-500 mr-2" />
-                          ) : transaction.type === "Withdrawal" ? (
-                            <ArrowUpRight className="h-5 w-5 text-red-500 mr-2" />
-                          ) : (
-                            <ArrowDownLeft className="h-5 w-5 text-green-500 mr-2" />
-                          )}
-                          <div>
-                            <h3 className="font-semibold">
-                              {transaction.type}
-                            </h3>
-                            <p className="text-sm text-gray-400">
-                              {transaction.item}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p
-                            className={`font-semibold ${
-                              transaction.type === "Purchase"
-                                ? "text-yellow-500"
-                                : transaction.type === "Withdrawal"
-                                ? "text-red-500"
-                                : "text-green-500"
-                            }`}
-                          >
-                            ${transaction.amount}
-                          </p>
-                          <p className="text-sm text-gray-400">
-                            {transaction.date}
-                          </p>
-                        </div>
+                      key={transaction.id}
+                      className="flex items-center justify-between p-4 bg-gray-800 rounded-lg"
+                    >
+                      <div>
+                        <h3 className="font-semibold text-purple-600">
+                          {transaction.auction.title}
+                        </h3>
+                        <p className="text-sm text-gray-400">
+                          Bid Amount: ${transaction.amount}
+                        </p>
                       </div>
+                      <div className="text-right">
+                        <p className="text-sm text-purple-400">
+                          {new Date(transaction.timeStamp).toLocaleString()}
+                        </p>
+                        <span
+                          className={`text-sm font-semibold ${
+                            transaction.isActive === "Winning"
+                              ? "text-green-500"
+                              : transaction.status === "Outbid"
+                              ? "text-red-500"
+                              : "text-yellow-500"
+                          }`}
+                        >
+                          {transaction.isActive}
+                        </span>
+                      </div>
+                    </div>
                     ))}
                   </div>
                 </CardContent>
