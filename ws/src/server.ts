@@ -100,7 +100,6 @@ wss.on("connection", async (ws, req) => {
     ws.on("message", (message: string) => {
       try {
         const { bidder, bidAmount, timestamp, auctionId } = JSON.parse(message);
-        console.log(JSON.parse(message));
         const newBid: Bid = {
           auctionId,
           bidder,
