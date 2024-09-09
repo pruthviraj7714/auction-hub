@@ -96,17 +96,11 @@ export default function AuthPage() {
           </span>
         </div>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-8 bg-gradient-to-r from-purple-600 to-purple-800 text-white rounded-lg shadow-lg">
-            <TabsTrigger
-              value="signin"
-              className="py-2 transition duration-300 hover:bg-purple-700 focus:ring-2 focus:ring-purple-400 rounded-lg"
-            >
+          <TabsList className="w-full grid grid-cols-2">
+            <TabsTrigger value="signin" className="">
               Sign In
             </TabsTrigger>
-            <TabsTrigger
-              value="signup"
-              className="py-2 transition duration-300 hover:bg-purple-700 focus:ring-2 focus:ring-purple-400 rounded-lg"
-            >
+            <TabsTrigger value="signup" className="">
               Sign Up
             </TabsTrigger>
           </TabsList>
