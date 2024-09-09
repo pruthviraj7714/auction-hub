@@ -35,7 +35,19 @@ export async function GET() {
             timeStamp: "desc",
           },
         },
-        transcations: true,
+        transactions: {
+          include: {
+            auction: {
+              select: {
+                title: true,
+                isActive: true,
+              },
+            },
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+        }
       },
     });
 
