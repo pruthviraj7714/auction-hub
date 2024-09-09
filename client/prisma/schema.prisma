@@ -69,6 +69,7 @@ model Transcation {
   auction   Auction @relation(fields: [auctionId], references: [id])
   userId    String
   user      User    @relation(fields: [userId], references: [id])
+  createdAt  DateTime   @default(now())
 
   @@unique([auctionId])
 }
