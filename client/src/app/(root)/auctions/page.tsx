@@ -27,7 +27,7 @@ export default function AuctionsPage() {
             <AuctionCard auction={auction} key={auction.id} />
           ))
         ) : (
-          <div>No Auctions Found!</div>
+          <div className="col-span-3 text-center mt-36 font-bold text-3xl text-white">No Auctions Found!</div>
         )}
       </div>
     </div>

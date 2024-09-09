@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, Clock} from "lucide-react";
+import { DollarSign, Clock } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
 import AuctionCard2 from "@/components/AuctionCard2";
@@ -11,15 +11,26 @@ import AuctionCard2 from "@/components/AuctionCard2";
 export default function YourAuctionsPage() {
   const [currentAuctions, setCurrentAuctions] = useState<any[]>([]);
   const [pastAuctions, setPastAuctions] = useState<any[]>([]);
+  const [earnings, setEarnings] = useState<number>(0);
 
+  const now = new Date().getTime();
   const getAuctions = async () => {
     try {
       const res = await axios.get("/api/user/auctions");
       setCurrentAuctions(
-        res.data.user.auctions?.filter((a: any) => a.isActive === true)
+        res.data.user.auctions?.filter(
+          (a: any) => new Date(a.endingTime).getTime() >= now
+        )
       );
       setPastAuctions(
-        res.data.user.auctions?.filter((a: any) => a.isActive === false)
+        res.data.user.auctions?.filter(
+          (a: any) => new Date(a.endingTime).getTime() <= now
+        )
+      );
+      setEarnings(
+        res.data.user?.transactions?.reduce((acc: number, currValue: any) => {
+          return acc + currValue.amount;
+        }, 0)
       );
     } catch (error: any) {
       toast.error(error?.response?.data.message);
@@ -46,8 +57,7 @@ export default function YourAuctionsPage() {
                 <DollarSign className="h-4 w-4 text-purple-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">$0</div>
-                <p className="text-xs text-gray-400">+20.1% from last month</p>
+                <div className="text-2xl font-bold">${earnings}</div>
               </CardContent>
             </Card>
 
@@ -62,13 +72,12 @@ export default function YourAuctionsPage() {
                 <div className="text-2xl font-bold">
                   {currentAuctions.length ?? 0}
                 </div>
-                <p className="text-xs text-gray-400">+2 new since last week</p>
               </CardContent>
             </Card>
           </div>
 
           <Tabs defaultValue="current" className="w-full">
-            <TabsList className="w-full justify-start border-b border-gray-800">
+            <TabsList className="w-full grid grid-cols-2 border-b border-gray-800">
               <TabsTrigger
                 value="current"
                 className="text-purple-400 hover:text-purple-600"
@@ -90,7 +99,9 @@ export default function YourAuctionsPage() {
                     <AuctionCard2 auction={auction} key={auction.id} />
                   ))
                 ) : (
-                  <p>No active auctions</p>
+                  <p className="col-span-3 text-center text-2xl font-bold mt-10">
+                    No active auctions
+                  </p>
                 )}
               </div>
             </TabsContent>
@@ -102,7 +113,9 @@ export default function YourAuctionsPage() {
                     <AuctionCard2 auction={auction} key={auction.id} />
                   ))
                 ) : (
-                  <p>No past auctions</p>
+                  <p className="col-span-3 text-center text-2xl font-bold mt-10">
+                    No past auctions
+                  </p>
                 )}
               </div>
             </TabsContent>

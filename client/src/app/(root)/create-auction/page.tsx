@@ -276,7 +276,6 @@ export default function CreateAuctionPage() {
                               Electronics
                             </SelectItem>
                             <SelectItem value="fashion">Fashion</SelectItem>
-                            <SelectItem value="home">Home & Garden</SelectItem>
                             <SelectItem value="sports">Sports</SelectItem>
                             <SelectItem value="art">Art</SelectItem>
                           </SelectContent>

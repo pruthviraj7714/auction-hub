@@ -80,7 +80,6 @@ export default function AuctionItemPage({
         setCurrentBid(data.currentBid);
         setBidders(data.bids.length);
       } else if (data.type === "newBid") {
-        console.log(data);
         setBids((prevBids) => [data.bid, ...prevBids]);
         setCurrentBid(data.currentBid);
         setBidders((prevBidders) => prevBidders + 1);
@@ -147,7 +146,13 @@ export default function AuctionItemPage({
   };
 
   if (isLoading || status === "loading") {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center bg-gray-900 min-h-screen">
+        <div className="relative w-20 h-20">
+          <div className="absolute border-4 border-t-transparent border-purple-600 rounded-full w-full h-full animate-spin"></div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -301,6 +306,10 @@ export default function AuctionItemPage({
                         </p>
                       </div>
                     ))
+                  ) : isAuctionEnded && bids.length === 0 ? (
+                    <div className="text-sm font-extrabold text-red-500">
+                      It looks like no one has placed any bids for this auction.
+                    </div>
                   ) : (
                     <div className="text-center text-xl font-bold">
                       No bids yet!
@@ -331,8 +340,11 @@ export default function AuctionItemPage({
                             <Shield className="h-8 w-8 text-yellow-500 animate-bounce" />
                           </div>
                           <p className="text-lg">
-                            Congratulations, <strong>{bids[0].bidder}</strong>!
-                            You won the auction for{" "}
+                            Congratulations,{" "}
+                            <strong className="text-yellow-800 underline">
+                              {bids[0].bidder}
+                            </strong>
+                            ! won the auction for{" "}
                             <strong>{auctionInfo.product?.title}</strong> with a
                             final bid of
                             <span className="text-green-500 font-semibold">
@@ -345,7 +357,7 @@ export default function AuctionItemPage({
                             {session?.user.username === bids[0].bidder && (
                               <Link
                                 className="flex gap-2 items-center mt-4 bg-slate-500 p-4 rounded-lg text-white"
-                                href={`/transaction?winner=${bids[0].bidder}&amount=${bids[0].amount}&auctionId=${params.auctionId}`}
+                                href={`/transaction?winner=${bids[0].bidder}&amount=${bids[0].amount}&auctionId=${params.auctionId}&auctionTitle=${auctionInfo.title}`}
                               >
                                 <FaMoneyCheckAlt size={20} />
                                 Make a Payment here
@@ -373,14 +385,16 @@ export default function AuctionItemPage({
                         It looks like no one has placed any bids yet. Stay tuned
                         for updates!
                       </AlertDialogDescription>
-                      <div className="flex justify-end space-x-4">
-                        <AlertDialogCancel className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition duration-200">
-                          Cancel
-                        </AlertDialogCancel>
-                        <AlertDialogAction className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-600 transition duration-200">
-                          OK
-                        </AlertDialogAction>
-                      </div>
+                      {session?.user.username !== bids[0].bidder && (
+                        <div className="flex justify-end space-x-4">
+                          <AlertDialogCancel className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition duration-200">
+                            Cancel
+                          </AlertDialogCancel>
+                          <AlertDialogAction className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-600 transition duration-200">
+                            OK
+                          </AlertDialogAction>
+                        </div>
+                      )}
                     </AlertDialogContent>
                   )}
                 </AlertDialog>

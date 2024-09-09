@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Gavel, DollarSign, User, Clock, AlertTriangle } from "lucide-react";
-import Link from "next/link";
 import { toast } from "sonner";
 
 export default function TransactionPage() {
@@ -25,7 +24,7 @@ export default function TransactionPage() {
   const winner = searchParams.get("winner");
   const amount = searchParams.get("amount");
   const auctionId = searchParams.get("auctionId");
-  const auctionTitle = searchParams.get("auctionTitle") || "Auction Item";
+  const auctionTitle = searchParams.get("auctionTitle");
 
   useEffect(() => {
     if (!winner || !amount || !auctionId) {
@@ -37,7 +36,7 @@ export default function TransactionPage() {
   const handleTransaction = async () => {
     setIsLoading(true);
     try {
-      const res = await axios.post(`/api/user/transaction?username=${winner}`, {
+      await axios.post(`/api/user/transaction?username=${winner}`, {
         auctionId,
         amount: Number(amount),
       });
