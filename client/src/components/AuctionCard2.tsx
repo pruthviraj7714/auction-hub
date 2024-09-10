@@ -4,9 +4,11 @@ import { Card, CardContent } from "./ui/card";
 import Link from "next/link";
 
 export default function AuctionCard2({ auction }: { auction: any }) {
-
   const now = Date.now();
-  const isActive = (now >= new Date(auction.startingTime).getTime()) && (now <= new Date(auction.endingTime).getTime())
+  const isStartingIn = new Date(auction.startingTime).getTime() >= now;
+  const isActive =
+    now >= new Date(auction.startingTime).getTime() &&
+    now <= new Date(auction.endingTime).getTime();
 
   const formatTimeLeft = (endTime: string) => {
     const timeLeft = new Date(endTime).getTime() - Date.now();
@@ -25,7 +27,7 @@ export default function AuctionCard2({ auction }: { auction: any }) {
     <Link href={`/auction/${auction.category}/${auction.id}`} passHref>
       <Card
         key={auction.id}
-        className="transition-transform duration-300 hover:scale-105 hover:shadow-lg cursor-pointer"
+        className="transition-transform duration-300 hover:shadow-lg cursor-pointer"
       >
         <CardContent className="p-0">
           <img
@@ -36,14 +38,26 @@ export default function AuctionCard2({ auction }: { auction: any }) {
           <div className="p-4">
             <h3 className="font-semibold text-lg mb-2">{auction.title}</h3>
             <p className="text-sm text-gray-500 mb-2">
-              Current Bid:{" "}
-              <span className="text-black">${auction.currentHighestBid}</span>
+              Starting Price:{" "}
+              <span className="text-black">${auction.startingPrice}</span>
             </p>
             <p className="text-sm text-gray-500 mb-4">
-              Time Left:{" "}
-              <span className="text-black">
-                {formatTimeLeft(auction.endingTime)}
-              </span>
+              {isStartingIn ? (
+                <div className="font-semibold text-green-500">
+                  Not started yet
+                </div>
+              ) : isActive ? (
+                <div className="text-gray-500">
+                  Time Left:
+                  <span>{formatTimeLeft(auction.endingTime)}</span>
+                </div>
+              ) : (
+                <div>
+                  <span className="font-semibold text-red-500">
+                    Auction Ended
+                  </span>
+                </div>
+              )}
             </p>
             <div className="flex justify-between items-center">
               {isActive && (
@@ -57,7 +71,7 @@ export default function AuctionCard2({ auction }: { auction: any }) {
               )}
               <Button
                 variant="outline"
-                className="flex justify-center items-center"
+                className="flex justify-center items-center border border-black/55"
               >
                 View Auction
                 <ArrowUpRight className="ml-2 h-4 w-4" />

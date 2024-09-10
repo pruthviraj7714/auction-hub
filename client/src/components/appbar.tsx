@@ -1,25 +1,20 @@
 "use client";
-import { DotSquareIcon, Gavel, Hammer, UserCheck } from "lucide-react";
+import { Gavel, Hammer, Mail, MessageSquare, PlusCircle } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Github, LogOut, User, UserPlus } from "lucide-react";
 import {
-  Cloud,
-  CreditCard,
-  Github,
-  Keyboard,
-  LifeBuoy,
-  LogOut,
-  Mail,
-  MessageSquare,
-  Plus,
-  PlusCircle,
-  Settings,
-  User,
-  UserPlus,
-  Users,
-} from "lucide-react";
-
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -29,12 +24,24 @@ import {
   DropdownMenuLabel,
   DropdownMenuPortal,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  FacebookShareButton,
+  TwitterShareButton,
+  FacebookIcon,
+  TwitterIcon,
+  InstagramIcon,
+  WhatsappIcon,
+  WhatsappShareButton,
+  InstapaperShareButton,
+  PinterestShareButton,
+  PinterestIcon,
+} from "next-share";
+
 export default function Appbar() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -58,24 +65,7 @@ export default function Appbar() {
             >
               Create Auction
             </Button>
-            {/* <Button
-              onClick={() => {
-                router.push("/me/auctions");
-              }}
-              className="bg-purple-500 hover:bg-purple-600 transition-all duration-200 text-sm font-semibold"
-            >
-              Your Auctions
-            </Button>
-            <Button
-              onClick={async () => {
-                await signOut({ redirect: false });
-                router.push("/");
-              }}
-              variant="destructive"
-              className="bg-red-500 hover:bg-red-600 transition-all duration-200 text-sm font-semibold"
-            >
-              Log Out
-            </Button> */}
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <User
@@ -97,47 +87,111 @@ export default function Appbar() {
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      <UserPlus className="mr-2 h-4 w-4" />
-                      <span>Invite users</span>
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuPortal>
-                      <DropdownMenuSubContent>
-                        <DropdownMenuItem>
-                          <Mail className="mr-2 h-4 w-4" />
-                          <span>Email</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <MessageSquare className="mr-2 h-4 w-4" />
-                          <span>Message</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                      </DropdownMenuSubContent>
-                    </DropdownMenuPortal>
-                  </DropdownMenuSub>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <Github className="mr-2 h-4 w-4" />
-                  <span>GitHub</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <LifeBuoy className="mr-2 h-4 w-4" />
-                  <span>Support</span>
-                </DropdownMenuItem>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    <span>Invite users</span>
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuItem>
+                        <FacebookShareButton
+                          quote="test"
+                          url="https://test.com"
+                          hashtag="#test"
+                        >
+                          <div className="flex items-center gap-2">
+                            <FacebookIcon className="h-8 w-8 rounded-full" />
+                            <span>Facebook</span>
+                          </div>
+                        </FacebookShareButton>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <WhatsappShareButton
+                          title="Share on WhatsApp"
+                          url="https://test.com"
+                        >
+                          <div className="flex items-center gap-2">
+                            <WhatsappIcon className="h-8 w-8 rounded-full" />
+                            <span>WhatsApp</span>
+                          </div>
+                        </WhatsappShareButton>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <InstapaperShareButton url="https://test.com">
+                          <div className="flex items-center gap-2">
+                            <InstagramIcon className="h-8 w-8 rounded-full" />
+                            <span>Instagram</span>
+                          </div>
+                        </InstapaperShareButton>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <TwitterShareButton
+                          title="Check this out!"
+                          url="https://test.com"
+                          hashtags={["test"]}
+                        >
+                          <div className="flex items-center gap-2">
+                            <TwitterIcon className="h-8 w-8 rounded-full" />
+                            <span>Twitter</span>
+                          </div>
+                        </TwitterShareButton>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <PinterestShareButton
+                          media="https://test.com/image.jpg"
+                          description="Check this out!"
+                          url="https://test.com"
+                        >
+                          <div className="flex items-center gap-2">
+                            <PinterestIcon className="h-8 w-8 rounded-full" />
+                            <span>Pinterest</span>
+                          </div>
+                        </PinterestShareButton>
+                      </DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
 
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={async () => {
-                    await signOut({ redirect: false });
-                    router.push("/");
-                  }}
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log out</span>
+                <DropdownMenuItem>
+                  <Link
+                    target="_blank"
+                    className="flex gap-1.5 items-center"
+                    href={"https://github.com/pruthviraj7714/auction-hub"}
+                  >
+                    <Github className="mr-2 h-4 w-4" />
+                    <span>GitHub</span>
+                  </Link>
                 </DropdownMenuItem>
+                <AlertDialog>
+                  <AlertDialogTrigger>
+                    <div className="flex gap-2 items-center ml-1.5 hover:text-red-500 cursor-pointer transition">
+                      <LogOut size={15} />
+                      Logout
+                    </div>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="bg-white text-black">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Confirm Sign Out?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to sign out? You will need to log
+                        in again to access your account.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={async () => {
+                          await signOut({ redirect: false });
+                          router.push("/");
+                        }}
+                        className="bg-red-500 text-white hover:bg-red-600"
+                      >
+                        Continue
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
