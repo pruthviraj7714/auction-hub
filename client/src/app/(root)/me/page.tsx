@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -9,6 +8,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Coins, User, Mail, ArrowDownRight, ArrowUpLeft } from "lucide-react";
 import axios from "axios";
@@ -20,10 +27,13 @@ export default function UserProfilePage() {
   const [bids, setBids] = useState<any[]>([]);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [currentBidPage, setCurrentBidPage] = useState(0);
+  const [currentTransactionPage, setCurrentTransactionPage] = useState(0);
+  const ITEMS_PER_PAGE = 4;
+
   const getUserInfo = async () => {
     try {
       const res = await axios.get("/api/user/info");
-      console.log(res.data.user.transcations);
       setUserInfo(res.data.user);
       setBids(res.data.user.bids);
       setTransactions(res.data.user.transactions);
@@ -56,19 +66,21 @@ export default function UserProfilePage() {
             <Avatar className="w-24 h-24">
               <AvatarImage
                 src={`https://api.dicebear.com/6.x/initials/svg?seed=${userInfo.username}`}
-                alt={userInfo.username}
+                alt={userInfo.username || "User"}
               />
               <AvatarFallback>
-                {userInfo?.username?.slice(0, 2).toUpperCase()}
+                {userInfo?.username?.slice(0, 2).toUpperCase() || "NA"}
               </AvatarFallback>
             </Avatar>
             <div className="text-center md:text-left">
-              <h1 className="text-3xl font-bold">{userInfo.username}</h1>
-              <p className="text-gray-400 mt-1">{userInfo.email}</p>
+              <h1 className="text-3xl font-bold">
+                {userInfo.username || "N/A"}
+              </h1>
+              <p className="text-gray-400 mt-1">{userInfo.email || "N/A"}</p>
               <div className="flex items-center justify-center md:justify-start mt-2">
                 <Coins className="h-5 w-5 text-yellow-500 mr-2" />
                 <span className="font-semibold">
-                  {userInfo.bidCoins} Bid Coins
+                  {userInfo.bidCoins || 0} Bid Coins
                 </span>
               </div>
             </div>
@@ -85,17 +97,17 @@ export default function UserProfilePage() {
               <div className="flex items-center">
                 <User className="h-5 w-5 text-gray-400 mr-2" />
                 <span className="font-semibold mr-2">Username:</span>
-                <span>{userInfo.username}</span>
+                <span>{userInfo.username || "N/A"}</span>
               </div>
               <div className="flex items-center">
                 <Mail className="h-5 w-5 text-gray-400 mr-2" />
                 <span className="font-semibold mr-2">Email:</span>
-                <span>{userInfo.email}</span>
+                <span>{userInfo.email || "N/A"}</span>
               </div>
               <div className="flex items-center">
                 <Coins className="h-5 w-5 text-gray-400 mr-2" />
                 <span className="font-semibold mr-2">Bid Coins:</span>
-                <span>{userInfo.bidCoins}</span>
+                <span>{userInfo.bidCoins || 0}</span>
               </div>
             </CardContent>
           </Card>
@@ -105,6 +117,8 @@ export default function UserProfilePage() {
               <TabsTrigger value="bids">Your Bids</TabsTrigger>
               <TabsTrigger value="transactions">Transactions</TabsTrigger>
             </TabsList>
+
+            {/* Bids Section */}
             <TabsContent value="bids">
               <Card>
                 <CardHeader>
@@ -116,26 +130,31 @@ export default function UserProfilePage() {
                 <CardContent>
                   <div className="space-y-4">
                     {bids && bids.length > 0 ? (
-                      bids.map((bid) => (
-                        <div
-                          key={bid.id}
-                          className="flex items-center justify-between p-4 bg-gray-800 rounded-lg"
-                        >
-                          <div>
-                            <h3 className="font-semibold text-purple-600">
-                              {bid.auction.title}
-                            </h3>
-                            <p className="text-sm text-gray-400">
-                              Bid Amount: ${bid.amount}
-                            </p>
+                      bids
+                        .slice(
+                          currentBidPage * ITEMS_PER_PAGE,
+                          currentBidPage * ITEMS_PER_PAGE + ITEMS_PER_PAGE
+                        )
+                        .map((bid) => (
+                          <div
+                            key={bid.id}
+                            className="flex items-center justify-between p-4 bg-gray-800 rounded-lg"
+                          >
+                            <div>
+                              <h3 className="font-semibold text-purple-600">
+                                {bid.auction.title}
+                              </h3>
+                              <p className="text-sm text-gray-400">
+                                Bid Amount: ${bid.amount}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-sm text-purple-400">
+                                {new Date(bid.timeStamp).toLocaleString()}
+                              </p>
+                            </div>
                           </div>
-                          <div className="text-right">
-                            <p className="text-sm text-purple-400">
-                              {new Date(bid.timeStamp).toLocaleString()}
-                            </p>
-                          </div>
-                        </div>
-                      ))
+                        ))
                     ) : (
                       <div className="font-bold text-center my-10 text-2xl">
                         You haven't bid on any auctions yet.
@@ -143,8 +162,55 @@ export default function UserProfilePage() {
                     )}
                   </div>
                 </CardContent>
+
+                <Pagination className="my-4">
+                  <PaginationContent>
+                    <PaginationPrevious
+                      className={`${
+                        currentBidPage > 0
+                          ? "cursor-pointer"
+                          : "cursor-not-allowed"
+                      } `}
+                      onClick={() =>
+                        currentBidPage > 0 &&
+                        setCurrentBidPage(currentBidPage - 1)
+                      }
+                    />
+                    {Array(Math.ceil(bids.length / ITEMS_PER_PAGE))
+                      .fill(null)
+                      .map((_, index) => (
+                        <PaginationItem key={index}>
+                          <PaginationLink
+                            className={`cursor-pointer ${
+                              currentBidPage === index
+                                ? "bg-black text-white hover:bg-black hover:text-white"
+                                : ""
+                            }`}
+                            onClick={() => setCurrentBidPage(index)}
+                          >
+                            {index + 1}
+                          </PaginationLink>
+                        </PaginationItem>
+                      ))}
+                    <PaginationNext
+                      className={`${
+                        currentBidPage <
+                        Math.ceil(bids.length / ITEMS_PER_PAGE) - 1
+                          ? "cursor-pointer"
+                          : "cursor-not-allowed"
+                      } `}
+                      onClick={() =>
+                        currentBidPage <
+                          Math.ceil(bids.length / ITEMS_PER_PAGE) - 1 &&
+                        setCurrentBidPage(currentBidPage + 1)
+                      }
+                    />
+                  </PaginationContent>
+                </Pagination>
               </Card>
             </TabsContent>
+
+            {/* Transactions Section */}
             <TabsContent value="transactions">
               <Card>
                 <CardHeader>
@@ -156,42 +222,96 @@ export default function UserProfilePage() {
                 <CardContent>
                   <div className="space-y-4">
                     {transactions && transactions.length > 0 ? (
-                      transactions.map((transaction) => (
-                        <div
-                          key={transaction.id}
-                          className="flex items-center justify-between p-4 bg-gray-800 rounded-lg"
-                        >
-                          <div>
-                            <h3 className="font-semibold text-purple-600">
-                              {transaction.auction.title}
-                            </h3>
+                      transactions
+                        .slice(
+                          currentTransactionPage * ITEMS_PER_PAGE,
+                          currentTransactionPage * ITEMS_PER_PAGE +
+                            ITEMS_PER_PAGE
+                        )
+                        .map((transaction) => (
+                          <div
+                            key={transaction.id}
+                            className="flex items-center justify-between p-4 bg-gray-800 rounded-lg"
+                          >
+                            <div>
+                              <h3 className="font-semibold text-purple-600">
+                                {transaction.auction.title}
+                              </h3>
                               {transaction.status === "inbid" ? (
-                            <div className="text-sm font-semibold flex items-center gap-1.5 text-red-400">
-                              <ArrowUpLeft size={25} />
-                              Transaction Amount: <span>${transaction.amount}</span>
-                            </div>
-
+                                <div className="text-sm font-semibold flex items-center gap-1.5 text-red-400">
+                                  <ArrowUpLeft size={25} />
+                                  Transaction Amount:{" "}
+                                  <span>${transaction.amount}</span>
+                                </div>
                               ) : (
                                 <div className="text-sm font-semibold flex items-center gap-1.5 text-green-400">
-                                <ArrowDownRight size={25} />
-                                Transaction Amount: <span>${transaction.amount}</span>
-                              </div>
+                                  <ArrowDownRight size={25} />
+                                  Transaction Amount:{" "}
+                                  <span>${transaction.amount}</span>
+                                </div>
                               )}
+                            </div>
+                            <div className="text-right">
+                              <p className="text-sm text-purple-400">
+                                {new Date(
+                                  transaction.createdAt
+                                ).toLocaleString()}
+                              </p>
+                            </div>
                           </div>
-                          <div className="text-right">
-                            <p className="text-sm text-purple-400">
-                              {new Date(transaction.createdAt).toLocaleString()}
-                            </p>
-                          </div>
-                        </div>
-                      ))
+                        ))
                     ) : (
                       <div className="font-bold text-center my-10 text-2xl">
-                        No Transactions yet!
+                        You haven't made any transactions yet.
                       </div>
                     )}
                   </div>
                 </CardContent>
+
+                <Pagination className="my-4">
+                  <PaginationContent>
+                    <PaginationPrevious
+                      className={`${
+                        currentTransactionPage > 0
+                          ? "cursor-pointer"
+                          : "cursor-not-allowed"
+                      } `}
+                      onClick={() =>
+                        currentTransactionPage > 0 &&
+                        setCurrentTransactionPage(currentTransactionPage - 1)
+                      }
+                    />
+                    {Array(Math.ceil(transactions.length / ITEMS_PER_PAGE))
+                      .fill(null)
+                      .map((_, index) => (
+                        <PaginationItem key={index}>
+                          <PaginationLink
+                            className={`cursor-pointer ${
+                              currentTransactionPage === index
+                                ? "bg-black text-white hover:bg-black hover:text-white"
+                                : ""
+                            }`}
+                            onClick={() => setCurrentTransactionPage(index)}
+                          >
+                            {index + 1}
+                          </PaginationLink>
+                        </PaginationItem>
+                      ))}
+                    <PaginationNext
+                      className={`${
+                        currentTransactionPage <
+                        Math.ceil(transactions.length / ITEMS_PER_PAGE) - 1
+                          ? "cursor-pointer"
+                          : "cursor-not-allowed"
+                      } `}
+                      onClick={() =>
+                        currentTransactionPage <
+                          Math.ceil(transactions.length / ITEMS_PER_PAGE) - 1 &&
+                        setCurrentTransactionPage(currentTransactionPage + 1)
+                      }
+                    />
+                  </PaginationContent>
+                </Pagination>
               </Card>
             </TabsContent>
           </Tabs>
