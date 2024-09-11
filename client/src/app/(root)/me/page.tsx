@@ -124,7 +124,7 @@ export default function UserProfilePage() {
                 <CardHeader>
                   <CardTitle>Your Bids</CardTitle>
                   <CardDescription>
-                    Recent bids you've placed on auctions.
+                    Recent bids you&apos;ve placed on auctions.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -157,7 +157,7 @@ export default function UserProfilePage() {
                         ))
                     ) : (
                       <div className="font-bold text-center my-10 text-2xl">
-                        You haven't bid on any auctions yet.
+                        You haven&apos;t bid on any auctions yet.
                       </div>
                     )}
                   </div>
@@ -262,7 +262,7 @@ export default function UserProfilePage() {
                         ))
                     ) : (
                       <div className="font-bold text-center my-10 text-2xl">
-                        You haven't made any transactions yet.
+                        You haven&apos;t made any transactions yet.
                       </div>
                     )}
                   </div>

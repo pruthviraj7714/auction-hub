@@ -127,7 +127,7 @@ export default function CreateAuctionPage() {
                 <CardHeader>
                   <CardTitle>Product Information</CardTitle>
                   <CardDescription>
-                    Provide details about the product you're auctioning.
+                    Provide details about the product you&apos;re auctioning.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
