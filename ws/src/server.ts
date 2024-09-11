@@ -1,5 +1,6 @@
 import WebSocket from "ws";
 import axios from "axios";
+import { NEXT_URL } from "./config";
 
 const wss = new WebSocket.Server({ port: 8080 });
 
@@ -22,7 +23,7 @@ const auctionData: { [auctionId: string]: Auction } = {};
 const getAuctionData = async (auctionId: string): Promise<Auction> => {
   try {
     const res = await axios.get(
-      `http://localhost:3000/api/auction?auctionId=${auctionId}`
+      `${NEXT_URL}?auctionId=${auctionId}`
     );
 
     if (!auctionData[auctionId]) {
@@ -51,8 +52,6 @@ wss.on("connection", async (ws, req) => {
     ws.close();
     return;
   }
-
-  console.log(`New connection for auction: ${auctionId}`);
 
   try {
     const auction = await getAuctionData(auctionId);
