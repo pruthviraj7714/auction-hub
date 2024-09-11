@@ -11,6 +11,9 @@ export async function GET(req: NextRequest) {
       },
       include : {
         product : true
+      },
+      orderBy : {
+        startingTime : "desc"
       }
     });
 

@@ -1,9 +1,9 @@
 import authOptions from "@/lib/auth";
 import prisma from "@/lib/db";
 import { getServerSession } from "next-auth";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET() {
+export async function GET(req : NextRequest) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -47,7 +47,7 @@ export async function GET() {
           orderBy: {
             createdAt: "desc",
           },
-        }
+        },
       },
     });
 
