@@ -27,7 +27,7 @@ export default function HomePage() {
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 text-gray-100">
       <main className="flex-1">
-        <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-gradient-to-b from-gray-900 to-gray-800">
+        <section className="w-full py-10 md:py-20 lg:py-28 xl:py-40 bg-gradient-to-b from-gray-900 to-gray-800">
           <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center space-y-4 text-center">
               <div className="space-y-2">
@@ -36,24 +36,8 @@ export default function HomePage() {
                 </h1>
                 <p className="mx-auto max-w-[700px] text-gray-400 md:text-xl">
                   Join the excitement of live auctions. Find rare collectibles,
-                  art, and more.
+                  art, electronics and more.
                 </p>
-              </div>
-              <div className="w-full max-w-sm space-y-2">
-                <form className="flex space-x-2">
-                  <Input
-                    className="flex-1 bg-gray-800 border-gray-700"
-                    placeholder="Search auctions..."
-                    type="text"
-                  />
-                  <Button
-                    type="submit"
-                    className="bg-purple-600 hover:bg-purple-700"
-                  >
-                    <Search className="h-4 w-4 mr-2" />
-                    Search
-                  </Button>
-                </form>
               </div>
             </div>
           </div>
@@ -68,9 +52,11 @@ export default function HomePage() {
             </h2>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {auctions && auctions.length > 0 ? (
-                auctions.map((auction, index) => (
-                  <AuctionCard key={index} auction={auction} />
-                ))
+                auctions
+                  .slice(0, 9)
+                  .map((auction, index) => (
+                    <AuctionCard key={index} auction={auction} />
+                  ))
               ) : (
                 <div>No auctions found</div>
               )}

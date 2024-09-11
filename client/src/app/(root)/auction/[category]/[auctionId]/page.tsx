@@ -7,9 +7,10 @@ import {
   User,
   Truck,
   Shield,
-  ArrowLeft,
   Clock10,
   Calendar,
+  CircleDollarSignIcon,
+  Hammer,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -31,8 +32,12 @@ import { checkUserBalance } from "@/lib/helper";
 import {
   FaChessKing,
   FaExclamationTriangle,
+  FaFile,
+  FaFileAlt,
+  FaFileArchive,
   FaMoneyBillAlt,
   FaMoneyCheckAlt,
+  FaProductHunt,
   FaUserAltSlash,
 } from "react-icons/fa";
 
@@ -51,11 +56,16 @@ export default function AuctionItemPage({
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isAuctionEnded, setIsAuctionEnded] = useState<boolean>(false);
+  const [isStartingIn, setIsStartingIn] = useState(false);
 
   const getAuctionInfo = async () => {
     try {
       const res = await axios.get(`/api/auction?auctionId=${params.auctionId}`);
       setAuctionInfo(res.data.auction);
+      setIsStartingIn(
+        new Date(res?.data?.auction?.startingTime).getTime() >=
+          new Date().getTime()
+      );
     } catch (error: any) {
       toast.error(error?.response?.data.message);
     } finally {
@@ -84,6 +94,7 @@ export default function AuctionItemPage({
         setCurrentBid(data.currentBid);
         setBidders((prevBidders) => prevBidders + 1);
       } else if (data.type === "auctionStart") {
+        setIsStartingIn(false);
         setIsAuctionEnded(data.isAuctionEnded);
       } else if (data.type === "auctionJustEnded") {
         setIsOpen(true);
@@ -157,15 +168,8 @@ export default function AuctionItemPage({
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 text-gray-100">
-      <main className="flex-1 py-12 px-4 md:px-6">
+      <main className="flex-1 py-8 px-4 md:px-6">
         <div className="max-w-6xl mx-auto">
-          <Link
-            href="/home"
-            className="inline-flex items-center text-purple-400 hover:text-purple-300 mb-6"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Auctions
-          </Link>
           <div className="grid md:grid-cols-2 gap-12">
             <div>
               <div className="aspect-square relative overflow-hidden rounded-lg bg-gray-800">
@@ -175,37 +179,63 @@ export default function AuctionItemPage({
                   className="object-cover w-full h-full"
                 />
               </div>
-              <AuctionTimer
-                startingTime={auctionInfo.startingTime}
-                endingTime={auctionInfo.endingTime}
-              />
-              <div className="p-4 mt-5 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg shadow-md text-white">
-                <div className="flex items-center space-x-4">
-                  <Calendar className="text-2xl" />
-                  <div className="text-lg font-semibold">Auction Time</div>
+
+              <div className="bg-gray-800 p-4 space-y-3 rounded-lg">
+                <h2 className="text-xl font-semibold mb-2">Product:</h2>
+                <div className="flex gap-1.5 items-center">
+                  <FaProductHunt />
+                  <p>Name : {auctionInfo.product.title}</p>
                 </div>
-                <div className="mt-2 text-lg">
-                  <span className="flex items-center space-x-2">
-                    <Clock10 />
-                    <span>
-                      <span className="font-semibold">Starts:</span>{" "}
-                      {new Date(auctionInfo.startingTime).toLocaleString()}
-                    </span>
-                  </span>
-                  <span className="flex items-center space-x-2 mt-1">
-                    <Clock10 />
-                    <span>
-                      <span className="font-semibold">Ends:</span>{" "}
-                      {new Date(auctionInfo.endingTime).toLocaleString()}
-                    </span>
-                  </span>
+                <div className="text-wrap font-sans">
+                  Description : {auctionInfo.product?.description}
+                </div>
+                <div className="flex gap-1.5 items-center">
+                  <CircleDollarSignIcon />
+                  <p>Starting Price : ${auctionInfo.startingPrice}</p>
                 </div>
               </div>
             </div>
-            <div className="space-y-6">
-              <h1 className="text-3xl font-bold">
-                {auctionInfo.product?.title}
+            <div className="space-y-4">
+              <h1 className="flex items-center gap-1.5 text-xl font-semibold">
+                <Hammer />
+                Auction :{" "}
+                <span className="font-extrabold text-2xl text-gray-400">
+                  {auctionInfo?.title}
+                </span>
               </h1>
+
+              <p className="text-gray-300 font-sans">
+                {auctionInfo.description || "No description available."}
+              </p>
+
+              <div>
+                <AuctionTimer
+                  startingTime={auctionInfo.startingTime}
+                  endingTime={auctionInfo.endingTime}
+                />
+                <div className="p-4 mt-5 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg shadow-md text-white">
+                  <div className="flex items-center space-x-4">
+                    <Calendar className="text-2xl" />
+                    <div className="text-lg font-semibold">Auction Time</div>
+                  </div>
+                  <div className="mt-2 text-lg">
+                    <span className="flex items-center space-x-2">
+                      <Clock10 />
+                      <span>
+                        <span className="font-semibold">Starts:</span>{" "}
+                        {new Date(auctionInfo.startingTime).toLocaleString()}
+                      </span>
+                    </span>
+                    <span className="flex items-center space-x-2 mt-1">
+                      <Clock10 />
+                      <span>
+                        <span className="font-semibold">Ends:</span>{" "}
+                        {new Date(auctionInfo.endingTime).toLocaleString()}
+                      </span>
+                    </span>
+                  </div>
+                </div>
+              </div>
               {isAuctionEnded ? (
                 bids.length > 0 ? (
                   <div className="flex items-center space-x-4 text-2xl font-sans animate-fadeIn transition-transform transform hover:scale-105">
@@ -253,14 +283,16 @@ export default function AuctionItemPage({
                   value={userBid}
                   onChange={(e) => setUserBid(e.target.value)}
                   placeholder={
-                    !isAuctionEnded
+                    isStartingIn
+                      ? "Auction not started yet!"
+                      : !isAuctionEnded
                       ? `Enter bid above ${currentBid}`
                       : "Auction Ended"
                   }
-                  disabled={isAuctionEnded}
+                  disabled={isAuctionEnded || isStartingIn}
                 />
                 <Button
-                  disabled={isAuctionEnded}
+                  disabled={isAuctionEnded || isStartingIn}
                   className="bg-purple-500 hover:bg-purple-600 px-4 py-1 mt-2"
                   type="submit"
                 >
@@ -354,15 +386,16 @@ export default function AuctionItemPage({
                             .
                           </p>
                           <div>
-                            {session?.user.username === bids[0].bidder && (
-                              <Link
-                                className="flex gap-2 items-center mt-4 bg-slate-500 p-4 rounded-lg text-white"
-                                href={`/transaction?winner=${bids[0].bidder}&amount=${bids[0].amount}&auctionId=${params.auctionId}&auctionTitle=${auctionInfo.title}`}
-                              >
-                                <FaMoneyCheckAlt size={20} />
-                                Make a Payment here
-                              </Link>
-                            )}
+                            {bids.length > 0 &&
+                              session?.user.username === bids[0].bidder && (
+                                <Link
+                                  className="flex gap-2 items-center mt-4 bg-slate-500 p-4 rounded-lg text-white"
+                                  href={`/transaction?winner=${bids[0].bidder}&amount=${bids[0].amount}&auctionId=${params.auctionId}&auctionTitle=${auctionInfo.title}`}
+                                >
+                                  <FaMoneyCheckAlt size={20} />
+                                  Make a Payment here
+                                </Link>
+                              )}
                           </div>
                         </div>
                       </AlertDialogDescription>
@@ -385,7 +418,8 @@ export default function AuctionItemPage({
                         It looks like no one has placed any bids yet. Stay tuned
                         for updates!
                       </AlertDialogDescription>
-                      {session?.user.username !== bids[0].bidder && (
+                      {bids.length > 0 &&
+                      session?.user.username !== bids[0].bidder ? (
                         <div className="flex justify-end space-x-4">
                           <AlertDialogCancel className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition duration-200">
                             Cancel
@@ -394,6 +428,10 @@ export default function AuctionItemPage({
                             OK
                           </AlertDialogAction>
                         </div>
+                      ) : (
+                        <AlertDialogAction className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-600 transition duration-200">
+                          OK
+                        </AlertDialogAction>
                       )}
                     </AlertDialogContent>
                   )}

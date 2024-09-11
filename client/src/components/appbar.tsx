@@ -1,5 +1,5 @@
 "use client";
-import { Gavel, Hammer, Mail, MessageSquare, PlusCircle } from "lucide-react";
+import { Gavel, Hammer } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -156,16 +156,16 @@ export default function Appbar() {
                 <DropdownMenuItem>
                   <Link
                     target="_blank"
-                    className="flex gap-1.5 items-center"
+                    className="flex mr-4 gap-1.5 items-center"
                     href={"https://github.com/pruthviraj7714/auction-hub"}
                   >
-                    <Github className="mr-2 h-4 w-4" />
+                    <Github size={15} />
                     <span>GitHub</span>
                   </Link>
                 </DropdownMenuItem>
                 <AlertDialog>
                   <AlertDialogTrigger>
-                    <div className="flex gap-2 items-center ml-1.5 hover:text-red-500 cursor-pointer transition">
+                    <div className="flex gap-2 items-center ml-2 hover:text-red-500 cursor-pointer transition">
                       <LogOut size={15} />
                       Logout
                     </div>

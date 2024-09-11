@@ -60,15 +60,6 @@ export default function AuctionCard2({ auction }: { auction: any }) {
               )}
             </p>
             <div className="flex justify-between items-center">
-              {isActive && (
-                <Button
-                  className="flex justify-center items-center"
-                  variant={"destructive"}
-                >
-                  Remove
-                  <X className="ml-2 h-4 w-4" />
-                </Button>
-              )}
               <Button
                 variant="outline"
                 className="flex justify-center items-center border border-black/55"

@@ -1,6 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Clock, Gavel, Lock, Search, DollarSign } from "lucide-react";
+import {
+  Clock,
+  Gavel,
+  Lock,
+  Search,
+  DollarSign,
+  ArrowRightSquareIcon,
+  ArrowRightCircle,
+} from "lucide-react";
 import { getServerSession } from "next-auth";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -64,8 +72,8 @@ export default async function LandingPage() {
               </div>
               <div className="w-full max-w-sm mt-10">
                 <Link href={"/auth"}>
-                  <Button className="bg-purple-600 w-[230px] hover:bg-purple-700">
-                    Get Started
+                  <Button className="bg-purple-600 h-[50px] text-xl w-[230px] hover:bg-purple-700">
+                    Get Started <ArrowRightCircle size={25} className="ml-2" />
                   </Button>
                 </Link>
               </div>
@@ -111,42 +119,6 @@ export default async function LandingPage() {
             </div>
           </div>
         </section>
-        <section className="w-full py-12 md:py-24 lg:py-32">
-          <div className="container px-4 md:px-6 mx-auto">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-12 text-purple-400">
-              Popular Auctions
-            </h2>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 ">
-              {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="relative group overflow-hidden rounded-lg shadow-lg bg-gray-800"
-                >
-                  <img
-                    alt={`Popular Auction ${i}`}
-                    className="object-cover w-full h-60"
-                    height="300"
-                    src={`#`}
-                    style={{
-                      aspectRatio: "400/300",
-                      objectFit: "cover",
-                    }}
-                    width="400"
-                  />
-                  <div className="absolute inset-0 bg-black bg-opacity-60 flex items-end p-6 text-white transition-all duration-300 opacity-0 group-hover:opacity-100">
-                    <div>
-                      <h3 className="text-lg font-bold mb-2">
-                        Exclusive Item {i}
-                      </h3>
-                      <p className="text-sm">Current Bid: $X,XXX</p>
-                      <p className="text-sm">Time Left: XX:XX:XX</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
         <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-800">
           <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center space-y-4 text-center">
@@ -160,18 +132,18 @@ export default async function LandingPage() {
                 </p>
               </div>
               <div className="w-full max-w-sm space-y-2">
-                <form className="flex space-x-2">
+                <form className="flex items-center space-x-2">
                   <Input
                     className="max-w-lg flex-1 bg-gray-900 border-gray-700 text-white placeholder-gray-500"
                     placeholder="Enter your email"
                     type="email"
                   />
-                  <Button
-                    type="submit"
-                    className="bg-purple-600 hover:bg-purple-700 text-white"
+                  <Link
+                    href={"/auth"}
+                    className="bg-purple-600 hover:bg-purple-700 px-6 py-1 font-serif text-white"
                   >
                     Get Started
-                  </Button>
+                  </Link>
                 </form>
               </div>
             </div>

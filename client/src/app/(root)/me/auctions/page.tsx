@@ -28,9 +28,11 @@ export default function YourAuctionsPage() {
         )
       );
       setEarnings(
-        res.data.user?.transactions?.reduce((acc: number, currValue: any) => {
-          return acc + currValue.amount;
-        }, 0)
+        res.data.user?.transactions
+          ?.filter((tx: any) => tx.status === "outbid")
+          .reduce((acc: number, currValue: any) => {
+            return acc + currValue.amount;
+          }, 0)
       );
     } catch (error: any) {
       toast.error(error?.response?.data.message);
@@ -71,6 +73,20 @@ export default function YourAuctionsPage() {
               <CardContent>
                 <div className="text-2xl font-bold">
                   {currentAuctions.length ?? 0}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="transition-transform transform hover:scale-105 hover:shadow-lg">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-purple-400">
+                  Past Auctions
+                </CardTitle>
+                <Clock className="h-4 w-4 text-purple-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {pastAuctions.length ?? 0}
                 </div>
               </CardContent>
             </Card>
