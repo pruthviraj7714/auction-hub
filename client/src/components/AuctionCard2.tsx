@@ -27,7 +27,7 @@ export default function AuctionCard2({ auction }: { auction: any }) {
     <Link href={`/auction/${auction.category}/${auction.id}`} passHref>
       <Card
         key={auction.id}
-        className="transition-transform duration-300 hover:shadow-lg cursor-pointer"
+        className="transition-transform duration-300 hover:shadow-lg min-h-[390px] cursor-pointer"
       >
         <CardContent className="p-0">
           <img

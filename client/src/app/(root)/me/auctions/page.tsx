@@ -12,6 +12,7 @@ export default function YourAuctionsPage() {
   const [currentAuctions, setCurrentAuctions] = useState<any[]>([]);
   const [pastAuctions, setPastAuctions] = useState<any[]>([]);
   const [earnings, setEarnings] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   const now = new Date().getTime();
   const getAuctions = async () => {
@@ -36,12 +37,24 @@ export default function YourAuctionsPage() {
       );
     } catch (error: any) {
       toast.error(error?.response?.data.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
     getAuctions();
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center bg-gray-900 min-h-screen">
+        <div className="relative w-20 h-20">
+          <div className="absolute border-4 border-t-transparent border-purple-600 rounded-full w-full h-full animate-spin"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-gray-100">

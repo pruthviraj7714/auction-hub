@@ -169,7 +169,7 @@ export default function AuctionItemPage({
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 text-gray-100">
       <main className="flex-1 py-8 px-4 md:px-6">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12">
             <div>
               <div className="aspect-square relative overflow-hidden rounded-lg bg-gray-800">
@@ -198,8 +198,8 @@ export default function AuctionItemPage({
             <div className="space-y-4">
               <h1 className="flex items-center gap-1.5 text-xl font-semibold">
                 <Hammer />
-                Auction :{" "}
-                <span className="font-extrabold text-2xl text-gray-400">
+                Auction:{" "}
+                <span className="font-extrabold text-xl text-gray-400">
                   {auctionInfo?.title}
                 </span>
               </h1>

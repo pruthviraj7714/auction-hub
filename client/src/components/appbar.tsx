@@ -95,11 +95,7 @@ export default function Appbar() {
                   <DropdownMenuPortal>
                     <DropdownMenuSubContent>
                       <DropdownMenuItem>
-                        <FacebookShareButton
-                          quote="test"
-                          url="https://test.com"
-                          hashtag="#test"
-                        >
+                        <FacebookShareButton url="https://auction-hub-gray.vercel.app">
                           <div className="flex items-center gap-2">
                             <FacebookIcon className="h-8 w-8 rounded-full" />
                             <span>Facebook</span>
@@ -109,7 +105,7 @@ export default function Appbar() {
                       <DropdownMenuItem>
                         <WhatsappShareButton
                           title="Share on WhatsApp"
-                          url="https://test.com"
+                          url="https://auction-hub-gray.vercel.app"
                         >
                           <div className="flex items-center gap-2">
                             <WhatsappIcon className="h-8 w-8 rounded-full" />
@@ -118,7 +114,7 @@ export default function Appbar() {
                         </WhatsappShareButton>
                       </DropdownMenuItem>
                       <DropdownMenuItem>
-                        <InstapaperShareButton url="https://test.com">
+                        <InstapaperShareButton url="https://auction-hub-gray.vercel.app">
                           <div className="flex items-center gap-2">
                             <InstagramIcon className="h-8 w-8 rounded-full" />
                             <span>Instagram</span>
@@ -127,9 +123,9 @@ export default function Appbar() {
                       </DropdownMenuItem>
                       <DropdownMenuItem>
                         <TwitterShareButton
-                          title="Check this out!"
-                          url="https://test.com"
-                          hashtags={["test"]}
+                          title="Check this amazing auction app!"
+                          url="https://auction-hub-gray.vercel.app"
+                          hashtags={["auction-hub"]}
                         >
                           <div className="flex items-center gap-2">
                             <TwitterIcon className="h-8 w-8 rounded-full" />
@@ -139,9 +135,9 @@ export default function Appbar() {
                       </DropdownMenuItem>
                       <DropdownMenuItem>
                         <PinterestShareButton
-                          media="https://test.com/image.jpg"
-                          description="Check this out!"
-                          url="https://test.com"
+                          media={"/favicon.ico"}
+                          description="Check this amazing auction app!"
+                          url="https://auction-hub-gray.vercel.app"
                         >
                           <div className="flex items-center gap-2">
                             <PinterestIcon className="h-8 w-8 rounded-full" />

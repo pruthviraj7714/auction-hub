@@ -108,7 +108,7 @@ export default function CreateAuctionPage() {
       });
 
       toast.success(res.data.message);
-      router.refresh();
+      form.reset();
     } catch (error: any) {
       toast.error(error?.response?.data?.message ?? error.message);
     } finally {
